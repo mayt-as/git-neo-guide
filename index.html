@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Git Cheat Sheet | NeoPop</title>
+    <style>
+        /* --- NEOPOP TOKENS --- */
+        :root {
+            --bg-color: #0d0d0d;
+            --surface-color: #1a1a1a;
+            --code-bg: #050505;
+            --text-main: #ffffff;
+            --text-muted: #a3a3a3;
+            --text-example: #888;
+            
+            /* Accents */
+            --accent-blue: #3b82f6; 
+            --accent-rose: #f43f5e; 
+            --accent-green: #10b981; 
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+
+            /* NeoPop Physics */
+            --border: 1px solid #333;
+            --hard-shadow: 6px 6px 0px 0px rgba(255, 255, 255, 0.08);
+            --hard-shadow-hover: 3px 3px 0px 0px rgba(255, 255, 255, 0.2);
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-code: 'Fira Code', 'Courier New', monospace;
+        }
+
+        /* --- RESET & LAYOUT --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            padding: 2rem;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* --- HEADER --- */
+        header {
+            margin-bottom: 3rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            line-height: 1.1;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .legend {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-item span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            border: 1px solid #333;
+        }
+
+        /* --- DIAGRAM SECTION (SVG) --- */
+        .diagram-container {
+            margin-bottom: 3rem;
+            overflow-x: auto;
+            padding: 2rem 0;
+            border: 1px solid #333;
+            background: var(--surface-color);
+            box-shadow: var(--hard-shadow);
+        }
+
+        .git-flow-svg {
+            width: 100%;
+            min-width: 700px;
+            height: auto;
+            display: block;
+        }
+
+        /* --- GRID SYSTEM --- */
+        .masonry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        /* --- CARD COMPONENT --- */
+        .card {
+            background-color: var(--surface-color);
+            border: var(--border);
+            box-shadow: var(--hard-shadow);
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .card:hover {
+            transform: translate(3px, 3px);
+            box-shadow: var(--hard-shadow-hover);
+            border-color: var(--text-main);
+            z-index: 10;
+        }
+
+        .card-header {
+            padding: 1.2rem;
+            border-bottom: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+        }
+
+        .indicator {
+            width: 12px;
+            height: 12px;
+            background: currentColor;
+            box-shadow: 2px 2px 0px rgba(255,255,255,0.3);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* --- COMMAND BLOCKS --- */
+        .cmd-group {
+            margin-bottom: 2rem;
+        }
+        .cmd-group:last-child { margin-bottom: 0; }
+
+        .cmd-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.25rem;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .cmd-label {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        
+        .cmd-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: block;
+            line-height: 1.4;
+        }
+
+        .cmd-tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--accent-amber);
+            border: 1px solid var(--accent-amber);
+            padding: 2px 6px;
+            white-space: nowrap;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid #333;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            overflow-x: auto; 
+            max-width: 100%;
+        }
+
+        .code-block::-webkit-scrollbar { height: 6px; }
+        .code-block::-webkit-scrollbar-track { background: #111; }
+        .code-block::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+
+        .syntax {
+            padding: 0.8rem 1rem;
+            color: var(--accent-green);
+            border-bottom: 1px dashed #333;
+            display: block;
+            white-space: nowrap;
+        }
+
+        .param { color: var(--accent-cyan); font-weight: bold; }
+
+        .example {
+            padding: 0.6rem 1rem;
+            color: var(--text-example);
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.02);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .ex-tag {
+            text-transform: uppercase;
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+            color: #666;
+            font-weight: bold;
+            user-select: none;
+            min-width: 30px;
+        }
+
+        /* --- COLOR THEMES --- */
+        .theme-blue { color: var(--accent-blue); }
+        .theme-rose { color: var(--accent-rose); }
+        .theme-green { color: var(--accent-green); }
+        .theme-amber { color: var(--accent-amber); }
+        .theme-purple { color: var(--accent-purple); }
+        .theme-cyan { color: var(--accent-cyan); }
+
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            header { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 1rem;
+            }
+            .masonry-grid { 
+                grid-template-columns: 1fr; 
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>Git Neo-Guide</h1>
+            <p class="subtitle">Complete cheat sheet with parameters & workflow visualization.</p>
+        </div>
+        <div class="legend">
+            <div class="legend-item"><span style="background:var(--accent-green)"></span>Syntax</div>
+            <div class="legend-item"><span style="background:var(--accent-cyan)"></span>Param</div>
+            <div class="legend-item"><span style="background:var(--text-example)"></span>Example</div>
+        </div>
+    </header>
+
+    <!-- VISUAL WORKFLOW DIAGRAM -->
+    <div class="diagram-container">
+        <svg class="git-flow-svg" viewBox="0 0 800 180" xmlns="http://www.w3.org/2000/svg">
+            <style>
+                .flow-text { font-family: 'Fira Code', monospace; font-size: 12px; fill: #888; text-transform: uppercase; }
+                .flow-label { font-family: 'Inter', sans-serif; font-size: 14px; fill: #fff; font-weight: bold; }
+                .flow-arrow { stroke: #444; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+                .flow-arrow-dash { stroke: #f43f5e; stroke-width: 2; fill: none; stroke-dasharray: 4; marker-end: url(#arrowhead-red); }
+                .flow-box { fill: #1a1a1a; stroke: #333; stroke-width: 2; rx: 4; }
+                .cmd-text { font-family: 'Fira Code', monospace; font-size: 11px; fill: #3b82f6; }
+                .cmd-text-red { font-family: 'Fira Code', monospace; font-size: 11px; fill: #f43f5e; }
+            </style>
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#444" />
+                </marker>
+                <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#f43f5e" />
+                </marker>
+            </defs>
+
+            <!-- Boxes -->
+            <rect x="20" y="50" width="140" height="60" class="flow-box" />
+            <text x="90" y="85" text-anchor="middle" class="flow-label">Working Dir</text>
+            <rect x="220" y="50" width="140" height="60" class="flow-box" />
+            <text x="290" y="85" text-anchor="middle" class="flow-label">Staging Area</text>
+            <rect x="420" y="50" width="140" height="60" class="flow-box" />
+            <text x="490" y="85" text-anchor="middle" class="flow-label">Local Repo</text>
+            <rect x="620" y="50" width="140" height="60" class="flow-box" />
+            <text x="690" y="85" text-anchor="middle" class="flow-label">Remote Repo</text>
+
+            <!-- Arrows -->
+            <path d="M 160 65 L 220 65" class="flow-arrow" />
+            <text x="190" y="55" text-anchor="middle" class="cmd-text">git add</text>
+
+            <path d="M 360 65 L 420 65" class="flow-arrow" />
+            <text x="390" y="55" text-anchor="middle" class="cmd-text">git commit</text>
+
+            <path d="M 560 65 L 620 65" class="flow-arrow" />
+            <text x="590" y="55" text-anchor="middle" class="cmd-text">git push</text>
+
+            <path d="M 620 95 L 560 95" class="flow-arrow" />
+            <text x="590" y="125" text-anchor="middle" class="cmd-text">git pull</text>
+
+            <path d="M 420 95 L 220 95" class="flow-arrow" />
+            <text x="320" y="125" text-anchor="middle" class="cmd-text">git reset</text>
+            
+            <path d="M 290 110 L 290 145 L 90 145 L 90 110" class="flow-arrow-dash" />
+            <text x="190" y="160" text-anchor="middle" class="cmd-text-red">git restore / checkout</text>
+        </svg>
+    </div>
+
+    <div class="masonry-grid">
+
+        <!-- 0. SETUP & CONFIG (Restored) -->
+        <div class="card theme-blue">
+            <div class="card-header">
+                <div class="card-title"><div class="indicator"></div>Setup & Config</div>
+            </div>
+            <div class="card-body">
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Initialize Repository</span></div>
+                    <span class="cmd-desc">Starts a new Git repository in the current directory.</span>
+                    <div class="code-block">
+                        <div class="syntax">git init</div>
+                        <div class="example"><span class="ex-tag">EX</span> git init</div>
+                    </div>
+                </div>
+                
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Clone Repository</span></div>
+                    <span class="cmd-desc">Downloads a project and its entire version history.</span>
+                    <div class="code-block">
+                        <div class="syntax">git clone &lt;url&gt;</div>
+                        <div class="example"><span class="ex-tag">EX</span> git clone https://github.com/user/repo.git</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Configure User</span></div>
+                    <span class="cmd-desc">Sets the name/email attached to your commits.</span>
+                    <div class="code-block">
+                        <div class="syntax">git config <span class="param">--global</span> user.name "Name"</div>
+                        <div class="example"><span class="ex-tag">EX</span> git config --global user.name "Jane Doe"</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. BRANCH MANAGEMENT -->
+        <div class="card theme-amber">
+            <div class="card-header">
+                <div class="card-title"><div class="indicator"></div>Branch Management</div>
+            </div>
+            <div class="card-body">
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">List Branches</span></div>
+                    <span class="cmd-desc">Shows local and remote branches.</span>
+                    <div class="code-block">
+                        <div class="syntax">git branch <span class="param">-a</span></div>
+                        <div class="example"><span class="ex-tag">EX</span> git branch -a</div>
+                    </div>
+                </div>
+                
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Safe Delete</span></div>
+                    <span class="cmd-desc">Deletes a branch only if it has been merged.</span>
+                    <div class="code-block">
+                        <div class="syntax">git branch <span class="param">-d</span> &lt;name&gt;</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git branch -d feature/login</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Rename Current</span></div>
+                    <span class="cmd-desc">Changes the name of the current active branch.</span>
+                    <div class="code-block">
+                        <div class="syntax">git branch <span class="param">-m</span> &lt;new&gt;</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git branch -m feature/new-login</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. REMOTE SYNCING -->
+        <div class="card theme-cyan">
+            <div class="card-header">
+                <div class="card-title"><div class="indicator"></div>Remote Sync</div>
+            </div>
+            <div class="card-body">
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Fetch (Clean Up)</span></div>
+                    <span class="cmd-desc">Downloads changes and removes deleted remote branches.</span>
+                    <div class="code-block">
+                        <div class="syntax">git fetch <span class="param">--all --prune</span></div>
+                        <div class="example"><span class="ex-tag">EX</span> git fetch --all --prune</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Pull with Rebase</span></div>
+                    <span class="cmd-desc">Fetches changes and stacks your work on top (cleaner).</span>
+                    <div class="code-block">
+                        <div class="syntax">git pull <span class="param">--rebase</span> origin &lt;branch&gt;</div>
+                        <div class="example"><span class="ex-tag">EX</span> git pull --rebase origin main</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">First Push</span></div>
+                    <span class="cmd-desc">Uploads commits and links local branch to remote.</span>
+                    <div class="code-block">
+                        <div class="syntax">git push <span class="param">-u</span> origin &lt;branch&gt;</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git push -u origin main</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ADVANCED COMMIT -->
+        <div class="card theme-green">
+            <div class="card-header">
+                <div class="card-title"><div class="indicator"></div>Commit & Amend</div>
+            </div>
+            <div class="card-body">
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Standard Commit</span></div>
+                    <span class="cmd-desc">Saves staged changes to history with a message.</span>
+                    <div class="code-block">
+                        <div class="syntax">git commit <span class="param">-m</span> "Msg"</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git commit -m "Fix login bug"</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header">
+                        <span class="cmd-label">Fix Last Commit</span>
+                        <span class="cmd-tag">Magic</span>
+                    </div>
+                    <span class="cmd-desc">Adds staged files to the previous commit without changing msg.</span>
+                    <div class="code-block">
+                        <div class="syntax">git commit <span class="param">--amend --no-edit</span></div>
+                        <div class="example"><span class="ex-tag">Use</span> git commit --amend --no-edit</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. SWITCH, RESTORE & RESET -->
+        <div class="card theme-blue">
+            <div class="card-header">
+                <div class="card-title"><div class="indicator"></div>Switch & Reset</div>
+            </div>
+            <div class="card-body">
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Create & Switch</span></div>
+                    <span class="cmd-desc">Creates a new branch and switches to it immediately.</span>
+                    <div class="code-block">
+                        <div class="syntax">git switch <span class="param">-c</span> &lt;branch&gt;</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git switch -c feature/dark-mode</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Discard Changes</span></div>
+                    <span class="cmd-desc">Reverts a file in the working directory to the last commit.</span>
+                    <div class="code-block">
+                        <div class="syntax">git restore &lt;file&gt;</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git restore style.css</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header">
+                        <span class="cmd-label">Reset (Soft)</span>
+                    </div>
+                    <span class="cmd-desc">Undoes the last commit but keeps changes staged.</span>
+                    <div class="code-block">
+                        <div class="syntax">git reset <span class="param">--soft</span> HEAD~1</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git reset --soft HEAD~1</div>
+                    </div>
+                </div>
+                
+                 <div class="cmd-group">
+                    <div class="cmd-header">
+                        <span class="cmd-label">Reset (Hard)</span>
+                        <span class="cmd-tag">Danger</span>
+                    </div>
+                    <span class="cmd-desc">Undoes last commit and DESTROYS all changes.</span>
+                    <div class="code-block">
+                        <div class="syntax">git reset <span class="param">--hard</span> HEAD~1</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git reset --hard HEAD~1</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. INSPECTION & LOGS -->
+        <div class="card theme-purple">
+            <div class="card-header">
+                <div class="card-title"><div class="indicator"></div>Logs & Visuals</div>
+            </div>
+            <div class="card-body">
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Visual Graph Log</span></div>
+                    <span class="cmd-desc">Displays history as a graph of branches and commits.</span>
+                    <div class="code-block">
+                        <div class="syntax">git log <span class="param">--oneline --graph --all</span></div>
+                        <div class="example"><span class="ex-tag">Ex</span> git log --oneline --graph --all</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">File Differences</span></div>
+                    <span class="cmd-desc">Lists only the names of files that have changed.</span>
+                    <div class="code-block">
+                        <div class="syntax">git diff <span class="param">--name-only</span></div>
+                        <div class="example"><span class="ex-tag">Ex</span> git diff --name-only</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+         <!-- 6. STASHING -->
+         <div class="card theme-rose">
+            <div class="card-header">
+                <div class="card-title"><div class="indicator"></div>Stashing</div>
+            </div>
+            <div class="card-body">
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Stash with Name</span></div>
+                    <span class="cmd-desc">Temporarily saves changes with a custom message.</span>
+                    <div class="code-block">
+                        <div class="syntax">git stash push <span class="param">-m</span> "work"</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git stash push -m "wip-header"</div>
+                    </div>
+                </div>
+
+                <div class="cmd-group">
+                    <div class="cmd-header"><span class="cmd-label">Apply & Drop</span></div>
+                    <span class="cmd-desc">Restores the most recent stash and deletes it.</span>
+                    <div class="code-block">
+                        <div class="syntax">git stash pop</div>
+                        <div class="example"><span class="ex-tag">Ex</span> git stash pop</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
